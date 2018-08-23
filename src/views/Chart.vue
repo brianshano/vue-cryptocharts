@@ -158,39 +158,6 @@ export default {
     }
   },
 
-  // computed: {
-  //   displayTitle() {
-  //     console.log('insideComputed', this.currency.key);
-  //     return this.currency.key;
-  //   },
-  //   computedChartData() {
-  //     return {
-  //       labels: dateList,
-  //       datasets: [
-  //         {
-  //           label: this.currency.key,
-  //           // label: this.displayTitle,
-  //           borderColor: '#FC2525',
-  //           pointBackgroundColor: 'white',
-  //           borderWidth: 1,
-  //           pointBorderColor: 'white',
-  //           backgroundColor: this.gradient,
-  //           data: this.priceArray1
-  //         },
-  //         {
-  //           label: `${this.currency.key} USD`,
-  //           // label: 'test',
-  //           borderColor: '#05CBE1',
-  //           pointBackgroundColor: 'white',
-  //           pointBorderColor: 'white',
-  //           borderWidth: 1,
-  //           backgroundColor: this.gradient2,
-  //           data: this.priceArray2
-  //         }
-  //       ]
-  //     };
-  //   }
-  // },
   mounted() {
     this.loading = true;
     console.log('mounted go');
