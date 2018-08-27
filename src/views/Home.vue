@@ -10,7 +10,7 @@
     <div class="container">
       <div class="Chart__list">
         <div class="Chart">
-          <h2>{{currencyDisplayName}} ({{currencyDisplayKey}}) Price Last 12 months</h2>
+          <h2>{{currencyDisplayName}} ({{currencyDisplayKey}}) Price Last {{this.dateDescription}}</h2>
           <section v-if="errored">
             <p>We're sorry, we're not able to retrieve this information at the moment, please try back later</p>
           </section>
@@ -77,7 +77,8 @@ export default {
       currencyDisplayName: '',
       currencyDisplayKey: '',
       datacollection: {},
-      dateList: dateListMonths
+      dateList: dateListMonths,
+      dateDescription: '12 Months'
     };
   },
   methods: {
@@ -86,10 +87,12 @@ export default {
         this.dayAggregate = 1;
         this.returnLimit = 6;
         this.dateList = ['1', '2', '3', '4', '5', '6', '7'];
+        this.dateDescription = '7 Days';
       } else if (frequency === 'Monthly') {
         this.dayAggregate = 30;
         this.returnLimit = 11;
         this.dateList = dateListMonths;
+        this.dateDescription = '12 Months';
       }
       this.setCurrency(this.currency);
     },
