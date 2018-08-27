@@ -7,24 +7,18 @@
     <div class="container">
       <div class="Chart__list">
         <div class="Chart">
-          <h2>{{this.currency.name}} Price Last 12 months</h2>
+          <h2>{{currencyDisplayName}} ({{currencyDisplayKey}}) Price Last 12 months</h2>
           <section v-if="errored">
             <p>We're sorry, we're not able to retrieve this information at the moment, please try back later</p>
           </section>
           <section v-else>
             <div v-if="loading"><img src="../assets/loader.gif"/></div>
-
-            <div
-              v-else
-              class="value"
-            >
+            <div v-else class="value">
               <span class="lighten">
               </span>
-              <line-example :chart-data="datacollection" :key="datacollection.datasets[1].label"></line-example>
-
+                <line-example :chart-data="datacollection" :key="currency.key"></line-example>
             </div>
           </section>
-
         </div>
       </div>
     </div>
@@ -35,7 +29,6 @@
 import LineExample from '../components/LineChart.js';
 import axios from 'axios';
 import moment from 'moment';
-// Vue.prototype.moment = moment;
 let dateList = [];
 for (let i = 12; i--; i <= 0) {
   let date = moment()
@@ -43,13 +36,12 @@ for (let i = 12; i--; i <= 0) {
     .startOf('month')
     .format('MMM');
   dateList.push(date);
-  // console.log('date', date);
 }
 
 let selectedTitle = 'testTiel';
 
 export default {
-  name: 'app',
+  name: 'chart',
   components: {
     LineExample
   },
@@ -65,23 +57,33 @@ export default {
         { key: 'ZEC', name: 'ZCash' },
         { key: 'REP', name: 'Augur' },
         { key: 'DADI', name: 'Dadi' },
+        { key: 'NANO', name: 'Nano' },
         { key: 'EOS', name: 'Eos' }
       ],
-
+      fiatListings: ['EUR', 'USD'],
       priceObject1: null,
       priceObject2: null,
       priceArray1: null,
       priceArray2: null,
       loading: false,
+      isLoaded: false,
       errored: false,
       currency: { key: 'BTC', name: 'Bitcoin' },
+      currencyDisplayName: '',
+      currencyDisplayKey: '',
       datacollection: {}
     };
   },
   methods: {
     setCurrency: function(currency) {
-      // console.log('set currency', currency.name);
+      console.log('set currency', currency.name);
+      console.log('gotData', this.gotData);
       // this.currency = currency;
+      this.currencyDisplayName = currency.name;
+      this.currencyDisplayKey = currency.key;
+      // this.loading = true;
+      this.priceArray1 = [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11];
+      this.priceArray2 = this.priceArray1;
 
       const apiHost = 'https://min-api.cryptocompare.com/';
       const endpoint1 = `data/histoday?fsym=${
@@ -99,14 +101,35 @@ export default {
         .then(response => {
           this.priceObject1 = response.data.Data;
           this.loading = false;
-          console.log('trhe priceObject1:', this.priceObject1);
           let strippedDown = this.priceObject1.map(data => {
             return data.close;
           });
 
           console.log(Object.values(strippedDown));
           this.priceArray1 = Object.values(strippedDown);
-          return this.priceArray1;
+          this.datacollection = {
+            labels: dateList,
+            datasets: [
+              {
+                label: `EUR`,
+                borderColor: '#FC2525',
+                pointBackgroundColor: 'white',
+                borderWidth: 1,
+                pointBorderColor: 'white',
+                backgroundColor: this.gradient,
+                data: this.priceArray1
+              },
+              {
+                label: `USD`,
+                borderColor: '#05CBE1',
+                pointBackgroundColor: 'white',
+                pointBorderColor: 'white',
+                borderWidth: 1,
+                backgroundColor: this.gradient2,
+                data: this.priceArray2
+              }
+            ]
+          };
         })
         .catch(error => {
           console.error(error);
@@ -118,50 +141,46 @@ export default {
         .then(response => {
           this.priceObject2 = response.data.Data;
           this.loading = false;
-          console.log('trhe priceObject2:', this.priceObject2);
           let strippedDown = this.priceObject2.map(data => {
             return data.close;
           });
 
           console.log(Object.values(strippedDown));
           this.priceArray2 = Object.values(strippedDown);
-          return this.priceArray2;
+          this.datacollection = {
+            labels: dateList,
+            datasets: [
+              {
+                label: `EUR`,
+                borderColor: '#FC2525',
+                pointBackgroundColor: 'white',
+                borderWidth: 1,
+                pointBorderColor: 'white',
+                backgroundColor: this.gradient,
+                data: this.priceArray1
+              },
+              {
+                label: `USD`,
+                borderColor: '#05CBE1',
+                pointBackgroundColor: 'white',
+                pointBorderColor: 'white',
+                borderWidth: 1,
+                backgroundColor: this.gradient2,
+                data: this.priceArray2
+              }
+            ]
+          };
         })
         .catch(error => {
           console.error(error);
           return Promise.reject(error);
         });
-
-      this.datacollection = {
-        labels: dateList,
-        datasets: [
-          {
-            label: `${this.currency.key} EUR`,
-            borderColor: '#FC2525',
-            pointBackgroundColor: 'white',
-            borderWidth: 1,
-            pointBorderColor: 'white',
-            backgroundColor: this.gradient,
-            data: this.priceArray1
-          },
-          {
-            label: `${this.currency.key} USD`,
-            borderColor: '#05CBE1',
-            pointBackgroundColor: 'white',
-            pointBorderColor: 'white',
-            borderWidth: 1,
-            backgroundColor: this.gradient2,
-            data: this.priceArray2
-          }
-        ]
-      };
     }
   },
-
-  mounted() {
+  created() {
+    let currency = this.currency;
     this.loading = true;
-    console.log('mounted go');
-    this.setCurrency(this.currency);
+    this.setCurrency(currency);
   }
 };
 </script>

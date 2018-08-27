@@ -20,7 +20,7 @@
             >
               <span class="lighten">
               </span>
-              <line-example :chart-data="datacollection" :key="datacollection.datasets[1].label"></line-example>
+              <line-example :chart-data="datacollection"></line-example>
 
             </div>
           </section>
@@ -35,7 +35,6 @@
 import LineExample from '../components/LineChart.js';
 import axios from 'axios';
 import moment from 'moment';
-// Vue.prototype.moment = moment;
 let dateList = [];
 for (let i = 12; i--; i <= 0) {
   let date = moment()
@@ -43,13 +42,12 @@ for (let i = 12; i--; i <= 0) {
     .startOf('month')
     .format('MMM');
   dateList.push(date);
-  // console.log('date', date);
 }
 
 let selectedTitle = 'testTiel';
 
 export default {
-  name: 'app',
+  name: 'chart',
   components: {
     LineExample
   },
@@ -80,8 +78,8 @@ export default {
   },
   methods: {
     setCurrency: function(currency) {
-      // console.log('set currency', currency.name);
-      // this.currency = currency;
+      console.log('set currency', currency.name);
+      this.currency = currency;
 
       const apiHost = 'https://min-api.cryptocompare.com/';
       const endpoint1 = `data/histoday?fsym=${
@@ -99,7 +97,7 @@ export default {
         .then(response => {
           this.priceObject1 = response.data.Data;
           this.loading = false;
-          console.log('trhe priceObject1:', this.priceObject1);
+          // console.log('trhe priceObject1:', this.priceObject1);
           let strippedDown = this.priceObject1.map(data => {
             return data.close;
           });
@@ -118,7 +116,7 @@ export default {
         .then(response => {
           this.priceObject2 = response.data.Data;
           this.loading = false;
-          console.log('trhe priceObject2:', this.priceObject2);
+          // console.log('trhe priceObject2:', this.priceObject2);
           let strippedDown = this.priceObject2.map(data => {
             return data.close;
           });
