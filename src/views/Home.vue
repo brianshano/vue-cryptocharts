@@ -4,10 +4,13 @@
     <ul class="currency-list">
       <li v-for="loopCurrency in this.currencyGroups" class="currency-item" v-on:click="setCurrency(loopCurrency)">{{ loopCurrency.name }}</li>
     </ul>
+    <button v-on:click="setTimePeriods('Monthly')">12 Months</button>
+    <button v-on:click="setTimePeriods('Weekly')">7 Days</button>
+
     <div class="container">
       <div class="Chart__list">
         <div class="Chart">
-          <h2>{{currencyDisplayName}} ({{currencyDisplayKey}}) Price Last 12 months</h2>
+          <h2>{{currencyDisplayName}} ({{currencyDisplayKey}}) Price Last {{this.dateDescription}}</h2>
           <section v-if="errored">
             <p>We're sorry, we're not able to retrieve this information at the moment, please try back later</p>
           </section>
@@ -16,7 +19,7 @@
             <div v-else class="value">
               <span class="lighten">
               </span>
-                <line-example :chart-data="datacollection" :key="currency.key"></line-example>
+                <line-example :chart-data="datacollection" :key="currency.key" :dateList="dateList"></line-example>
             </div>
           </section>
         </div>
@@ -29,13 +32,13 @@
 import LineExample from '../components/LineChart.js';
 import axios from 'axios';
 import moment from 'moment';
-let dateList = [];
+let dateListMonths = [];
 for (let i = 12; i--; i <= 0) {
   let date = moment()
     .subtract(i, 'month')
     .startOf('month')
     .format('MMM');
-  dateList.push(date);
+  dateListMonths.push(date);
 }
 
 let selectedTitle = 'testTiel';
@@ -61,6 +64,8 @@ export default {
         { key: 'EOS', name: 'Eos' }
       ],
       fiatListings: ['EUR', 'USD'],
+      dayAggregate: 30,
+      returnLimit: 11,
       priceObject1: null,
       priceObject2: null,
       priceArray1: null,
@@ -71,30 +76,43 @@ export default {
       currency: { key: 'BTC', name: 'Bitcoin' },
       currencyDisplayName: '',
       currencyDisplayKey: '',
-      datacollection: {}
+      datacollection: {},
+      dateList: dateListMonths,
+      dateDescription: '12 Months'
     };
   },
   methods: {
+    setTimePeriods: function(frequency) {
+      if (frequency === 'Weekly') {
+        this.dayAggregate = 1;
+        this.returnLimit = 6;
+        this.dateList = ['1', '2', '3', '4', '5', '6', '7'];
+        this.dateDescription = '7 Days';
+      } else if (frequency === 'Monthly') {
+        this.dayAggregate = 30;
+        this.returnLimit = 11;
+        this.dateList = dateListMonths;
+        this.dateDescription = '12 Months';
+      }
+      this.setCurrency(this.currency);
+    },
     setCurrency: function(currency) {
-      console.log('set currency', currency.name);
       console.log('gotData', this.gotData);
-      // this.currency = currency;
+      this.currency = currency;
+      let dayAggregate = this.dayAggregate;
+      let returnLimit = this.returnLimit;
       this.currencyDisplayName = currency.name;
       this.currencyDisplayKey = currency.key;
-      // this.loading = true;
       this.priceArray1 = [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11];
       this.priceArray2 = this.priceArray1;
 
       const apiHost = 'https://min-api.cryptocompare.com/';
       const endpoint1 = `data/histoday?fsym=${
         currency.key
-      }&tsym=EUR&limit=11&aggregate=30&e=CCCAGG`;
+      }&tsym=EUR&limit=${returnLimit}&aggregate=${dayAggregate}&e=CCCAGG`;
       const endpoint2 = `data/histoday?fsym=${
         currency.key
-      }&tsym=USD&limit=11&aggregate=30&e=CCCAGG`;
-
-      // console.log('currency', currency.key);
-      // console.log('currency', currency.name);
+      }&tsym=USD&limit=${returnLimit}&aggregate=${dayAggregate}&e=CCCAGG`;
 
       axios
         .get(`${apiHost}${endpoint1}`)
@@ -108,7 +126,7 @@ export default {
           console.log(Object.values(strippedDown));
           this.priceArray1 = Object.values(strippedDown);
           this.datacollection = {
-            labels: dateList,
+            labels: this.dateList,
             datasets: [
               {
                 label: `EUR`,
@@ -148,7 +166,7 @@ export default {
           console.log(Object.values(strippedDown));
           this.priceArray2 = Object.values(strippedDown);
           this.datacollection = {
-            labels: dateList,
+            labels: this.dateList,
             datasets: [
               {
                 label: `EUR`,
@@ -180,6 +198,13 @@ export default {
   created() {
     let currency = this.currency;
     this.loading = true;
+    console.log(
+      'set currency',
+      currency.name,
+      this.dayAggregate,
+      this.returnLimit
+    );
+
     this.setCurrency(currency);
   }
 };

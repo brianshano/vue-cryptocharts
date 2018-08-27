@@ -15,9 +15,9 @@ for (let i = 12; i--; i <= 0) {
 export default {
   extends: Line,
   mixins: [reactiveProp],
-  props: ['chartData'],
+  props: ['chartData', 'dateList'],
   mounted() {
-    console.log('mtd priceArray2', this.chartData);
+    console.log('mtd priceArray2', this.chartData, this.dateList);
     this.gradient = this.$refs.canvas
       .getContext('2d')
       .createLinearGradient(0, 0, 0, 450);
