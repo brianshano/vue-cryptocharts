@@ -2,7 +2,7 @@
   <div class="chart-component">
     <!-- <div class="">BTC | ETH | LTC | IOTA</div> -->
     <ul class="currency-list">
-      <li v-for="loopCurrency in this.currencyGroups" class="currency-item" v-on:click="setCurrency(loopCurrency)">{{ loopCurrency.name }}</li>
+      <li v-for="loopCurrency in this.currencyGroups" class="currency-item" v-on:click="setCurrency(loopCurrency)" v-bind:key="loopCurrency.name">{{ loopCurrency.name }}</li>
     </ul>
     <button v-on:click="setTimePeriods('Monthly')">12 Months</button>
     <button v-on:click="setTimePeriods('Weekly')">7 Days</button>
@@ -40,8 +40,6 @@ for (let i = 12; i--; i <= 0) {
     .format('MMM');
   dateListMonths.push(date);
 }
-
-let selectedTitle = 'testTiel';
 
 export default {
   name: 'chart',
